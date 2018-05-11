@@ -1,0 +1,5 @@
+package handles
+
+object Beard {
+
+}
