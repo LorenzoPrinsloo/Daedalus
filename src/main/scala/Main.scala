@@ -13,5 +13,5 @@ object Main extends App {
   )
 
   val res = TemplateFactory.renderTemplate(bankInfo, "BankingDetailsUpdateForm").runAsync.value.get
-  print(s"RESULT $res")
+  println(s"RESULT $res")
 }
