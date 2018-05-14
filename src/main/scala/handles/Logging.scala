@@ -54,7 +54,7 @@ object Logging {
           s"${Console.BLUE}routingkey:${Console.GREEN} ${message.routing.dst}${Console.MAGENTA} - " +
           s"${Console.BLUE}exchange:${Console.GREEN} ${ if (message.routing.exchange == "") "amq.default" else message.routing.exchange}${Console.MAGENTA} - " +
           s"${Console.BLUE}content-type:${Console.GREEN} ${message.options.flatMap(_.contentType).getOrElse("unknown")}${Console.MAGENTA} - " +
-          s"${Console.BLUE}content-encoding:${Console.GREEN} ${message.options.flatMap(_.contentEncoding).getOrElse("identity")}${Console.MAGENTA} - " +
+          s"${Console.BLUE}content-encoding:${Console.GREEN} ${message.options.flatMap(_.contentEncoding).getOrElse("identity")}${Console.MAGENTA} - "
       )
     }
 

@@ -3,6 +3,7 @@ package handles
 import handles.rabbit.messages.Configuration
 import handles.rabbit.{RabbitConnector, RabbitPublisher}
 import monix.eval.Task
+import monix.execution.Scheduler.Implicits.global
 
 object Rabbit {
   private val config = Configuration(

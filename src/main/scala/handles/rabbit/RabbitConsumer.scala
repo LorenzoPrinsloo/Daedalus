@@ -43,7 +43,7 @@ class RabbitConsumer(out: Subscriber[Delivery[Array[Byte]]], channel: AsyncBroke
       _ <- channel.basicQos(queue.prefetch)
       _ <- channel.basicConsume(queue.name, queue.autoAck, this)
       _ <- runLoop()
-    } yield ()).onErrorHandleWithLogging(cancelSubscriptionOnError)
+    } yield ()).onErrorHandleWithLogging(cancelSubscriptionOnError)(Logging.logger)
   }
 
   /**

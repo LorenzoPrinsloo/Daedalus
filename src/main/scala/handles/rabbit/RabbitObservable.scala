@@ -6,7 +6,7 @@ import monix.execution.{Cancelable, Scheduler}
 import monix.reactive.Observable
 import monix.reactive.observers.Subscriber
 
-class RabbitObservable private(connector: RabbitConnector, queue: QueueConfig, exchange: ExchangeConfig) extends Observable[Delivery[Array[Byte]]]{
+class RabbitObservable (connector: RabbitConnector, queue: QueueConfig, exchange: ExchangeConfig) extends Observable[Delivery[Array[Byte]]]{
 
   private val scheduler = Scheduler.fixedPool("amqp-io", 4)
 
