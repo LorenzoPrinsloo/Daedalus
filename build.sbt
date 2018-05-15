@@ -18,6 +18,7 @@ libraryDependencies ++= {
     "org.mockito" % "mockito-core" % "2.7.19" % Test,
     "com.rabbitmq" % "amqp-client" % "5.2.0",
     "org.typelevel" %% "cats-core" % "1.1.0",
-    "de.zalando" %% "beard" % "0.2.0"
+    "de.zalando" %% "beard" % "0.2.0",
+    "io.github.cloudify" %% "spdf" % "1.4.0"
   )
 }
