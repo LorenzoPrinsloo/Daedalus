@@ -1,14 +1,22 @@
 package services
 
+import java.io.{IOException, _}
+import java.nio.ByteBuffer
+import java.nio.channels.{AsynchronousFileChannel, CompletionHandler}
+import java.nio.file.Paths
+import java.nio.file.StandardOpenOption._
+
 import de.zalando.beard.ast.BeardTemplate
 import de.zalando.beard.renderer._
 import interface.messages.ErrorPayload
+import io.github.cloudify.scala.spdf._
 import monix.eval.Task
 import org.json4s.native.Serialization.{read, write}
 import org.json4s.{DefaultFormats, Formats}
-import io.github.cloudify.scala.spdf._
-import java.io._
-import java.net._
+
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Promise
+import scala.util.Try
 
 
 trait TemplateFactory {
@@ -17,7 +25,7 @@ trait TemplateFactory {
   def renderTemplate[A](data: A, templateName: String, fileName: String)(implicit compiler: CustomizableTemplateCompiler): Task[Either[ErrorPayload, Unit]] =
     Task.eval(getTemplate(templateName)
       .map(template => renderWithContext(data, template))
-      .map(writer => writeHtml(writer.toString, fileName)))
+      .map(writer => writeAsyncHtml(writer.toString, fileName)))
 
 
   private def getTemplate(name: String)(implicit compiler: CustomizableTemplateCompiler): Either[ErrorPayload, BeardTemplate] = {
@@ -47,6 +55,44 @@ trait TemplateFactory {
       case e: IOException => e.printStackTrace()
     }
   }
+
+  private def  writeAsyncHtml(html: String, fileName: String): Task[Unit] = {
+    val t = Promise[Array[Byte]]
+
+    try {
+      val channel = AsynchronousFileChannel.open(Paths.get(s"./assets/$fileName.html"), CREATE, WRITE)
+      val buffer = ByteBuffer.wrap(html.getBytes)
+      channel.write(buffer, 0L, buffer, onComplete(channel, t))
+    }
+    catch {
+      case p: Throwable => t.failure(p)
+    }
+
+    Task.deferFuture(t.future.map(_ => {}))
+  }
+
+  private def onComplete(channel: AsynchronousFileChannel, p: Promise[Array[Byte]]) = {
+    new CompletionHandler[Integer, ByteBuffer]() {
+      def completed(res: Integer, buffer: ByteBuffer): Unit = {
+        p.complete(Try {
+          buffer.array()
+        })
+        closeSafely(channel)
+      }
+
+      def failed(t: Throwable, buffer: ByteBuffer): Unit = {
+        p.failure(t)
+        closeSafely(channel)
+      }
+    }
+  }
+
+  private def closeSafely(channel: AsynchronousFileChannel) =
+    try {
+      channel.close()
+    } catch {
+      case e: IOException =>
+    }
 
   private def writePdf(html: String): Unit = {
     val pdf = Pdf(new PdfConfig {

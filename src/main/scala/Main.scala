@@ -1,4 +1,4 @@
-import java.time.LocalDateTime
+import java.time.{Duration, LocalDateTime}
 import java.time.format._
 import java.util.Locale._
 
@@ -107,6 +107,8 @@ object Main extends App {
     )
   )
 
-  val res = TemplateFactory.renderTemplate(NoW, "NotificationOfWorksForm", "NoW_Lorenzo").runAsync.value.get
-  println(s"RESULT ${if(res.get.isRight) "SUCCESS" else "FAILURE"}")
+  val beforeOp = LocalDateTime.now()
+  val res = TemplateFactory.renderTemplate(NoW, "NotificationOfWorksForm", "NoW_Lorenzo").runAsync.value.get.get
+  val afterOp = LocalDateTime.now()
+  println(s"RESULT ${if(res.isRight) "SUCCESS" else "FAILURE"} TIME: ${Duration.between(beforeOp, afterOp)}")
 }
