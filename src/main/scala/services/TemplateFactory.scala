@@ -17,6 +17,7 @@ import org.json4s.{DefaultFormats, Formats}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Promise
 import scala.util.Try
+import handles.Beard.pdf
 
 
 trait TemplateFactory {
@@ -25,7 +26,7 @@ trait TemplateFactory {
   def renderTemplate[A](data: A, templateName: String, fileName: String)(implicit compiler: CustomizableTemplateCompiler): Task[Either[ErrorPayload, Unit]] =
     Task.eval(getTemplate(templateName)
       .map(template => renderWithContext(data, template))
-      .map(writer => writeAsyncHtml(writer.toString, fileName)))
+      .map(writer => writeAsyncPdf(writer.toString, fileName)))
 
 
   private def getTemplate(name: String)(implicit compiler: CustomizableTemplateCompiler): Either[ErrorPayload, BeardTemplate] = {
@@ -94,19 +95,7 @@ trait TemplateFactory {
       case e: IOException =>
     }
 
-  private def writePdf(html: String): Unit = {
-    val pdf = Pdf(new PdfConfig {
-      orientation := Portrait
-      pageSize := "A4"
-      marginTop := "1in"
-      marginBottom := "1in"
-      marginLeft := "1in"
-      marginRight := "1in"
-    })
-
-//    val outputStream = new ByteArrayOutputStream()
-    pdf.run(html, new File("./assets/test.pdf"))
-  }
+  private def writeAsyncPdf(html: String, fileName: String)(implicit pdf: Pdf): Task[Unit] = Task.eval{ pdf.run(html, new File(s"./assets/$fileName.pdf")) }
 }
 
 object TemplateFactory extends TemplateFactory
