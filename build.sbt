@@ -8,6 +8,8 @@ resolvers ++= Seq(
   "zalando-maven" at "https://dl.bintray.com/zalando/maven"
 )
 
+scalacOptions += "-Ypartial-unification"
+
 libraryDependencies ++= {
   Seq(
     "io.monix" %% "monix" % "2.3.3",
@@ -19,6 +21,7 @@ libraryDependencies ++= {
     "com.rabbitmq" % "amqp-client" % "5.2.0",
     "org.typelevel" %% "cats-core" % "1.1.0",
     "de.zalando" %% "beard" % "0.2.0",
-    "io.github.cloudify" %% "spdf" % "1.4.0"
+    "io.github.cloudify" %% "spdf" % "1.4.0",
+    "org.typelevel" %% "cats-core" % "1.1.0"
   )
 }

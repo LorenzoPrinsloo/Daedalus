@@ -13,26 +13,22 @@ import io.github.cloudify.scala.spdf._
 import monix.eval.Task
 import org.json4s.native.Serialization.{read, write}
 import org.json4s.{DefaultFormats, Formats}
-
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Promise
 import scala.util.Try
 import handles.Beard.pdf
-
+import interface.messages.requests._
 
 trait TemplateFactory {
   implicit val jsonFormats: Formats = DefaultFormats
 
-  def renderTemplate[A](data: A, templateName: String, fileName: String)(implicit compiler: CustomizableTemplateCompiler): Task[Either[ErrorPayload, Unit]] =
-    Task.eval(getTemplate(templateName)
-      .map(template => renderWithContext(data, template))
-      .map(writer => writeAsyncPdf(writer.toString, fileName)))
+  def renderTemplate[A <: TemplateForm](data: A)(implicit compiler: CustomizableTemplateCompiler): Task[Either[ErrorPayload, Unit]] =
+    Task.eval {
+      data.getTemplate()
+        .map(template => renderWithContext(data, template))
+        .map(writer => writeAsyncPdf(writer.toString, data.templateName))
+    }
 
-
-  private def getTemplate(name: String)(implicit compiler: CustomizableTemplateCompiler): Either[ErrorPayload, BeardTemplate] = {
-    val template = compiler.compile(TemplateName(name))
-    Either.cond(template.isSuccess, template.get, ErrorPayload(404, s"Cannot find template $name"))
-  }
 
   private def renderWithContext[A](data: A, template: BeardTemplate)(implicit compiler: CustomizableTemplateCompiler): StringWriter = {
     val context: Map[String, Any] = read[Map[String, Any]](write(data))
@@ -57,7 +53,7 @@ trait TemplateFactory {
     }
   }
 
-  private def  writeAsyncHtml(html: String, fileName: String): Task[Unit] = {
+  private def writeAsyncHtml(html: String, fileName: String): Task[Unit] = {
     val t = Promise[Array[Byte]]
 
     try {
@@ -95,7 +91,7 @@ trait TemplateFactory {
       case e: IOException =>
     }
 
-  private def writeAsyncPdf(html: String, fileName: String)(implicit pdf: Pdf): Task[Unit] = Task.eval{ pdf.run(html, new File(s"./assets/$fileName.pdf")) }
+  private def writeAsyncPdf(html: String, fileName: String)(implicit pdf: Pdf): Unit = pdf.run(html, new File(s"./assets/$fileName.pdf"))
 }
 
 object TemplateFactory extends TemplateFactory

@@ -11,5 +11,5 @@ case class BankDetailsUpdateRequest(surname: String,
                                     signatureURI: String,
                                     company: WorkInfo,
                                     billing: BillingInfo,
-                                    date: DateInfo)
+                                    date: DateInfo) extends TemplateForm("BankingDetailsUpdateForm")
 

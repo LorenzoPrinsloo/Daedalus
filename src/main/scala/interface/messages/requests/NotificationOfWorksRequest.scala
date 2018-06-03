@@ -16,4 +16,4 @@ case class NotificationOfWorksRequest(fullName: String,
                                       signatureComposerURI: String,
                                       signaturePublisherURI: String,
                                       workNotifications: Seq[WorkNotification]
-                                     )
+                                     ) extends TemplateForm("NotificationOfWorksForm")

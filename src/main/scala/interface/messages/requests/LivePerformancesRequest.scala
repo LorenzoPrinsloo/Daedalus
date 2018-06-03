@@ -12,5 +12,5 @@ case class LivePerformancesRequest(fullName: String,
                                    performances: Seq[PerformanceInfo],
                                    signatureURI: String,
                                    date: DateInfo
-                                  )
+                                  ) extends TemplateForm("LivePerformancesform")
 
